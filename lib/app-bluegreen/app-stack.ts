@@ -1,50 +1,87 @@
-import * as cdk from "aws-cdk-lib";
-import * as ecs from "aws-cdk-lib/aws-ecs";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
-import * as deploy from "aws-cdk-lib/aws-codedeploy";
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
-interface AppStackProps extends cdk.StackProps {
-  vpcId: string;
-  albArn: string;
-  listenerArn: string;
+// ECS + ALB
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecsp from 'aws-cdk-lib/aws-ecs-patterns';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+
+// ECR
+import * as ecr from 'aws-cdk-lib/aws-ecr';
+
+// IAM
+import * as iam from 'aws-cdk-lib/aws-iam';
+
+export interface AppStackProps extends cdk.StackProps {
+  vpc: ecsp.ApplicationLoadBalancedFargateServiceProps['vpc'];
+  listener: elbv2.ApplicationListener;
+  ecrRepositoryArn: string; // passed from DockerEcrStack
 }
 
 export class AppStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props: AppStackProps) {
+  constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, props);
 
-    // Import VPC from NetworkStack stage
-    const vpc = ec2.Vpc.fromLookup(this, "ImportedVpc", {
-      vpcId: props.vpcId,
-    });
-
-    // Create an ECS Cluster
-    const cluster = new ecs.Cluster(this, "Cluster", { vpc });
-
-    // Fargate service behind imported ALB
-    const service = new ecs_patterns.ApplicationLoadBalancedFargateService(
+    //
+    // 🔶 1. Retrieve ECR Repo
+    //
+    const repo = ecr.Repository.fromRepositoryArn(
       this,
-      "Service",
-      {
-        cluster,
-        taskImageOptions: {
-          image: ecs.ContainerImage.fromRegistry(
-            "456582263462.dkr.ecr.us-east-1.amazonaws.com/app-repo:latest" // <<< MUST REPLACE
-          ),
-          containerPort: 5000,
-        },
-        desiredCount: 1,
-        publicLoadBalancer: false, // we use imported ALB
-      }
+      "AppRepository",
+      props.ecrRepositoryArn
     );
 
-    // BLUE/GREEN DEPLOYMENT ENABLED
-    new deploy.EcsDeploymentGroup(this, "BlueGreen", {
-      service: service.service,
-      blueGreenDeploymentConfig: {
-        terminationWaitTimeInMinutes: 5,
+    //
+    // 🔶 2. ECS Cluster
+    //
+    const cluster = new ecs.Cluster(this, "AppCluster", {
+      vpc: props.vpc,
+    });
+
+    //
+    // 🔶 3. Fargate Service using the latest ECR image
+    //
+    const service = new ecs.FargateService(this, "AppService", {
+      cluster,
+      taskDefinition: new ecs.FargateTaskDefinition(this, "TaskDef", {
+        cpu: 256,
+        memoryLimitMiB: 512,
+      }),
+      desiredCount: 1,
+      assignPublicIp: true, // because we deploy in a public subnet
+    });
+
+    service.taskDefinition.addContainer("AppContainer", {
+      image: ecs.ContainerImage.fromEcrRepository(repo, "latest"),
+      cpu: 256,
+      portMappings: [{ containerPort: 8080 }],
+      logging: ecs.LogDrivers.awsLogs({ streamPrefix: "app" }),
+    });
+
+    //
+    // 🔶 4. Connect Fargate Service to listener (Rolling OR Blue/Green)
+    //
+    props.listener.addTargets("AppTarget", {
+      port: 80,
+      targets: [service],
+      healthCheck: {
+        path: "/",
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 2,
       },
+    });
+
+    //
+    // 🔶 5. Optional: Blue/Green or CodeDeploy can be added here
+    //
+    // (Left simple so you can integrate CodeDeploy later)
+    //
+
+    //
+    // Outputs
+    //
+    new cdk.CfnOutput(this, "ServiceName", {
+      value: service.serviceName,
     });
   }
 }
