@@ -1,3 +1,11 @@
 
 
 --Flask app is running on port 5000
+
+git remote add origin git@github.com:alexriley7/codepipeline_a.git
+git branch -M main
+git push -u origin main
+
+I've used old token with secrets manager ( github-token1 )
+
+cdk bootstrap aws://456582263462/us-east-1
