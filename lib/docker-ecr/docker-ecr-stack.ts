@@ -11,7 +11,7 @@ export class DockerEcrStack extends cdk.Stack {
 
     // Create an ECR repo to store Docker images
     this.repo = new ecr.Repository(this, "AppRepository", {
-      repositoryName: "app-repo",  // <<< CHANGE IF YOU WANT
+      repositoryName: "app-repo-1",  // <<< CHANGE IF YOU WANT
     });
 
     // CodeBuild project that Docker-builds and pushes the image
