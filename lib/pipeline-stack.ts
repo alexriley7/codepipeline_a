@@ -6,8 +6,9 @@ import {
 } from "aws-cdk-lib/pipelines";
 
 import { DockerEcrStage } from "./docker-ecr/docker-ecr-stage";
-import { NetworkStage } from "./network/network-stage";
-import { AppStage } from "./app-bluegreen/app-stage";
+
+
+import { Construct } from "constructs";
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -22,8 +23,7 @@ export class PipelineStack extends cdk.Stack {
     });
 
     pipeline.addStage(new DockerStage(this, "DockerStage"));
-    pipeline.addStage(new NetworkStage(this, "NetworkStage"));
-    pipeline.addStage(new AppStage(this, "AppStage"));
+
   }
 }
 
