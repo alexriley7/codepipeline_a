@@ -22,7 +22,7 @@ export class PipelineStack extends cdk.Stack {
       }),
     });
 
-    pipeline.addStage(new DockerStage(this, "DockerStage"));
+    pipeline.addStage(new DockerEcrStage(this, "DockerEcrStage"));
 
   }
 }
