@@ -38,17 +38,13 @@ export class PipelineStack extends cdk.Stack {
 
 
 
-    //1 docker stage:
+    const dockerEcrStage = new DockerEcrStage(this, "DockerEcrStage");
 
-    const dockerStage = pipeline.addStage(new DockerEcrStage(this, "DockerEcrStage"));
-
-
-
-    // 2 app deploy stage:
+    pipeline.addStage(dockerEcrStage);
     
     pipeline.addStage(
       new AppDeployStage(this, "AppDeployStage", {
-        imageUri: dockerStage.imageUri,
+        imageUri: dockerEcrStage.imageUri,
         env: {
           account: this.account,
           region: this.region,
