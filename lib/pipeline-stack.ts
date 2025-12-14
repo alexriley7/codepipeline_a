@@ -20,7 +20,7 @@ export class PipelineStack extends cdk.Stack {
       pipelineName: "FullInfraPipeline",
       synth: new ShellStep("Synth", {
 
-        input: CodePipelineSource.gitHub("alexriley7/codepipeline_a", "main",
+        input: CodePipelineSource.connection("alexriley7/codepipeline_a", "main",
           
           {
 
