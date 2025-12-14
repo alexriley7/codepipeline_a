@@ -52,6 +52,10 @@ export class PipelineStack extends cdk.Stack {
       })
     );
 
+    console.log("Account:", this.account);
+    console.log("Region:", this.region);
   }
 }
+
+
 
