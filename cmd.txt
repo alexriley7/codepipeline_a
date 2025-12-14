@@ -16,3 +16,6 @@ Fix import file routes, commit and do npm run build to test
 deleted network stack and app stack, start from docker-ecr
 
 what happen to source action and codestar connection using arn? can i push and see the changes anyway?
+
+
+app-repo1 is empty, app image was automatically pushed to aws repo named cdk-hnb659fds-container-assets-456582263462-us-east-1
