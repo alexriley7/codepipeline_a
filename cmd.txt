@@ -19,3 +19,5 @@ what happen to source action and codestar connection using arn? can i push and s
 
 
 app-repo1 is empty, app image was automatically pushed to aws repo named cdk-hnb659fds-container-assets-456582263462-us-east-1
+
+maybe cdk synth fails if more than 1 non pipeline code staged declared file is present on /lib folder

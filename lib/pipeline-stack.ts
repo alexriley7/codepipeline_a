@@ -7,9 +7,10 @@ import {
 
 import { DockerEcrStage } from "./docker-ecr/docker-ecr-stage";
 
+import { AppDeployStage } from "./app-deploy/app-deploy-stage";
+
+
 import { SecretValue } from "aws-cdk-lib";
-
-
 import { Construct } from "constructs";
 
 export class PipelineStack extends cdk.Stack {
@@ -36,7 +37,7 @@ export class PipelineStack extends cdk.Stack {
 
     pipeline.addStage(new DockerEcrStage(this, "DockerEcrStage"));
 
-    
+  //  pipeline.addStage(new AppDeployStage(this, "AppDeployStage"));
 
   }
 }
