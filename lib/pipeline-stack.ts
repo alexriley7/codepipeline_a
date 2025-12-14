@@ -7,6 +7,8 @@ import {
 
 import { DockerEcrStage } from "./docker-ecr/docker-ecr-stage";
 
+import { AppDeployStage } from "./app-deploy/app-deploy-stage";
+
 import { SecretValue } from "aws-cdk-lib";
 
 
@@ -34,7 +36,25 @@ export class PipelineStack extends cdk.Stack {
       }),
     });
 
-    pipeline.addStage(new DockerEcrStage(this, "DockerEcrStage"));
+
+
+    //1 docker stage:
+
+    const dockerStage = pipeline.addStage(new DockerEcrStage(this, "DockerEcrStage"));
+
+
+
+    // 2 app deploy stage:
+    
+    pipeline.addStage(
+      new AppDeployStage(this, "AppDeployStage", {
+        imageUri: dockerStage.imageUri,
+        env: {
+          account: this.account,
+          region: this.region,
+        },
+      })
+    );
 
   }
 }

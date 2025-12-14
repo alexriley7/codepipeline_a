@@ -1,0 +1,56 @@
+import * as cdk from "aws-cdk-lib";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import { Construct } from "constructs";
+
+interface AppDeployStackProps extends cdk.StackProps {
+  imageUri: string;
+}
+
+export class AppDeployStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: AppDeployStackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 1,
+    });
+
+    const cluster = new ecs.Cluster(this, "Cluster", { vpc });
+
+    const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
+      cpu: 256,
+      memoryLimitMiB: 512,
+    });
+
+    taskDef.addContainer("AppContainer", {
+      image: ecs.ContainerImage.fromRegistry(props.imageUri),
+      portMappings: [{ containerPort: 8080 }],
+      logging: ecs.LogDrivers.awsLogs({ streamPrefix: "app" }),
+    });
+
+    const service = new ecs.FargateService(this, "Service", {
+      cluster,
+      taskDefinition: taskDef,
+      desiredCount: 1,
+      assignPublicIp: true,
+    });
+
+    const alb = new elbv2.ApplicationLoadBalancer(this, "ALB", {
+      vpc,
+      internetFacing: true,
+    });
+
+    const listener = alb.addListener("Http", { port: 80 });
+
+    listener.addTargets("ECS", {
+      port: 8080,
+      targets: [service],
+      healthCheck: { path: "/" },
+    });
+
+    new cdk.CfnOutput(this, "LoadBalancerDNS", {
+      value: alb.loadBalancerDnsName,
+    });
+  }
+}
