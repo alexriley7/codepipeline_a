@@ -12,3 +12,7 @@ cdk bootstrap aws://456582263462/us-east-1
 
 
 Fix import file routes, commit and do npm run build to test
+
+deleted network stack and app stack, start from docker-ecr
+
+what happen to source action and codestar connection using arn? can i push and see the changes anyway?
