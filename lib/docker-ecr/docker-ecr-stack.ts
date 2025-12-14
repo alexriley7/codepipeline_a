@@ -17,7 +17,7 @@ export class DockerEcrStack extends cdk.Stack {
 
     // Docker image asset (THIS triggers build + push)
     const image = new ecrAssets.DockerImageAsset(this, "AppImage", {
-      directory: "../docker", // must contain Dockerfile
+      directory: "docker", // must contain Dockerfile
     });
 
     this.imageUri = image.imageUri;
