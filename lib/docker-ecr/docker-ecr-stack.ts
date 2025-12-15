@@ -4,6 +4,7 @@ import * as ecrAssets from "aws-cdk-lib/aws-ecr-assets";
 import { Construct } from "constructs";
 
 export class DockerEcrStack extends cdk.Stack {
+
   public readonly repo: ecr.Repository;
   public readonly imageUri: string;
 
@@ -21,5 +22,18 @@ export class DockerEcrStack extends cdk.Stack {
     });
 
     this.imageUri = image.imageUri;
+
+    //  EXPORT the image URI
+
+    // This export:
+
+        // updates on every new Docker build
+
+        //    is available to any stack in the same account + region
+        
+    new cdk.CfnOutput(this, "ImageUriExport", {
+        value: this.imageUri,
+        exportName: "AppImageUri",
+        });
   }
 }

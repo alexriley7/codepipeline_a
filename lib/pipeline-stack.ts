@@ -37,7 +37,9 @@ export class PipelineStack extends cdk.Stack {
 
     pipeline.addStage(new DockerEcrStage(this, "DockerEcrStage"));
 
-  //  pipeline.addStage(new AppDeployStage(this, "AppDeployStage"));
+    // problem is How to pass imageUri from docker-ecr stack to app-deploy stack since imageUri is created after the Deployment
+
+    pipeline.addStage(new AppDeployStage(this, "AppDeployStage"));
 
   }
 }

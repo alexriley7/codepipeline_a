@@ -4,13 +4,20 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { Construct } from "constructs";
 
-interface AppDeployStackProps extends cdk.StackProps {
-  imageUri: string;
-}
+//interface AppDeployStackProps extends cdk.StackProps {
+//  imageUri: string;
+//}
 
 export class AppDeployStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: AppDeployStackProps) {
+
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+
+    //  IMPORT image URI from DockerEcrStack export
+    const imageUri = cdk.Fn.importValue("AppImageUri");
+
+
 
     const vpc = new ec2.Vpc(this, "Vpc", {
       natGateways: 1,
@@ -24,7 +31,7 @@ export class AppDeployStack extends cdk.Stack {
     });
 
     taskDef.addContainer("AppContainer", {
-      image: ecs.ContainerImage.fromRegistry(props.imageUri),
+      image: ecs.ContainerImage.fromRegistry(imageUri),
       portMappings: [{ containerPort: 8080 }],
       logging: ecs.LogDrivers.awsLogs({ streamPrefix: "app" }),
     });
