@@ -2,22 +2,15 @@ import * as cdk from "aws-cdk-lib";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
-//interface AppDeployStackProps extends cdk.StackProps {
-//  imageUri: string;
-//}
-
 export class AppDeployStack extends cdk.Stack {
-
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-
-    //  IMPORT image URI from DockerEcrStack export
+    // 🔹 IMPORT image URI
     const imageUri = cdk.Fn.importValue("AppImageUri");
-
-
 
     const vpc = new ec2.Vpc(this, "Vpc", {
       natGateways: 1,
@@ -25,17 +18,22 @@ export class AppDeployStack extends cdk.Stack {
 
     const cluster = new ecs.Cluster(this, "Cluster", { vpc });
 
+    // ✅ EXPLICIT execution role (THIS is the key)
+    const executionRole = new iam.Role(this, "ExecutionRole", {
+      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+    });
+
+    executionRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AmazonECSTaskExecutionRolePolicy"
+      )
+    );
+
     const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
       cpu: 256,
       memoryLimitMiB: 512,
+      executionRole, // 🔑 FORCE usage
     });
-
-    // 🔑 REQUIRED for ECR image pulls
-    taskDef.executionRole?.addManagedPolicy(
-        cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AmazonECSTaskExecutionRolePolicy"
-        )
-    );
 
     taskDef.addContainer("AppContainer", {
       image: ecs.ContainerImage.fromRegistry(imageUri),
