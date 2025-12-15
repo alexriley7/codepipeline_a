@@ -30,6 +30,13 @@ export class AppDeployStack extends cdk.Stack {
       memoryLimitMiB: 512,
     });
 
+    // 🔑 REQUIRED for ECR image pulls
+    taskDef.executionRole?.addManagedPolicy(
+        cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "service-role/AmazonECSTaskExecutionRolePolicy"
+        )
+    );
+
     taskDef.addContainer("AppContainer", {
       image: ecs.ContainerImage.fromRegistry(imageUri),
       portMappings: [{ containerPort: 8080 }],

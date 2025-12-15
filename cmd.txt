@@ -38,3 +38,6 @@ That’s not a bug — it’s the CDK Pipelines execution model.
 Check cfnOutput and Import / Export between stacks
 
 Check Constructs and its instantiations
+
+
+check stacks at https://us-east-1.console.aws.amazon.com/cloudformation/
