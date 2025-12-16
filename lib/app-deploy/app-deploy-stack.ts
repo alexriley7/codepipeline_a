@@ -10,9 +10,9 @@ export class AppDeployStack extends cdk.Stack {
     super(scope, id, props);
 
     //  IMPORT image URI
-    const imageUri = cdk.Fn.importValue("AppImageUri");
+  /*  const imageUri = cdk.Fn.importValue("AppImageUri");
 
-  /*  const vpc = new ec2.Vpc(this, "Vpc", {
+    const vpc = new ec2.Vpc(this, "Vpc", {
       natGateways: 1,
     });
 
