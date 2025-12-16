@@ -9,7 +9,7 @@ export class AppDeployStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 🔹 IMPORT image URI
+    //  IMPORT image URI
     const imageUri = cdk.Fn.importValue("AppImageUri");
 
     const vpc = new ec2.Vpc(this, "Vpc", {
@@ -29,7 +29,7 @@ export class AppDeployStack extends cdk.Stack {
       )
     );
 
-    const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
+    /* const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
       cpu: 256,
       memoryLimitMiB: 512,
       executionRole, // 🔑 FORCE usage
@@ -64,5 +64,10 @@ export class AppDeployStack extends cdk.Stack {
     new cdk.CfnOutput(this, "LoadBalancerDNS", {
       value: alb.loadBalancerDnsName,
     });
+
+*/
+
+
+
   }
 }
