@@ -7,7 +7,7 @@ import {
 
 import { DockerEcrStage } from "./docker-ecr/docker-ecr-stage";
 
-import { AppDeployStage } from "./app-deploy/app-deploy-stage";
+import { AppDeployStage_2 } from "./app-deploy/app-deploy-stage";
 
 
 import { SecretValue } from "aws-cdk-lib";
@@ -39,7 +39,7 @@ export class PipelineStack extends cdk.Stack {
 
     // problem is How to pass imageUri from docker-ecr stack to app-deploy stack since imageUri is created after the Deployment
 
-    pipeline.addStage(new AppDeployStage(this, "AppDeployStage"));
+    pipeline.addStage(new AppDeployStage_2(this, "AppDeployStage_2"));
 
   }
 }
