@@ -12,7 +12,7 @@ export class AppDeployStack extends cdk.Stack {
     //  IMPORT image URI
     const imageUri = cdk.Fn.importValue("AppImageUri");
 
-    const vpc = new ec2.Vpc(this, "Vpc", {
+  /*  const vpc = new ec2.Vpc(this, "Vpc", {
       natGateways: 1,
     });
 
@@ -29,7 +29,7 @@ export class AppDeployStack extends cdk.Stack {
       )
     );
 
-    /* const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
+     const taskDef = new ecs.FargateTaskDefinition(this, "TaskDef", {
       cpu: 256,
       memoryLimitMiB: 512,
       executionRole, // 🔑 FORCE usage
